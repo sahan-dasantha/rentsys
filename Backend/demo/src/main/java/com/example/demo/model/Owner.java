@@ -1,8 +1,12 @@
 package com.example.demo.model;
+import java.util.List;
+
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -42,7 +46,8 @@ public class Owner {
     @Column(name = "password",length = 30)
     private String password;
 
-
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
+    private List<Property>properties;  //one owner has many properties
 
 
 }
