@@ -1,0 +1,56 @@
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background-color: #0d0f14; /* ← CHANGED: dark background for entire app */
+  color: #eef0f6; /* ← ADDED: default light text */
+}
+
+/* ← CHANGED: removed purple, now dark themed navbar */
+.navbar {
+  width: 100% !important;
+  box-sizing: border-box;
+  padding: 18px 30px;
+  background-color: #13161e !important; /* dark surface */
+  border-bottom: 1px solid #252a38 !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+}
+
+.hero {
+  width: 100vw;
+  min-height: 60vh;
+  display: flex;
+  align-items: center;
+  background: #13161e;
+}
+
+.bg-light {
+  background-color: #181c27 !important;
+}
+
+.card {
+  background-color: #181c27 !important;
+  border-color: #252a38 !important;
+  color: #eef0f6 !important;
+}
+
+.card h5,
+.card p {
+  color: #eef0f6 !important;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p {
+  color: #eef0f6;
+}
+
+section {
+  background-color: #0d0f14;
+}
