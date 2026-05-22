@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { C, T } from "../styles/theme"; // ← ADDED: replaces the entire local C object and styles object
 
-// ── tiny icon components (no extra deps) ──────────────────────────
+// ── ICON COMPONENTS ──────────────────────────────────────────────
+// These small SVG icons are kept here since they're specific to this page
 const Icon = ({ d, size = 18 }) => (
   <svg
     width={size}
@@ -35,283 +37,62 @@ const IconBuilding = () => (
   <Icon d="M3 21h18 M5 21V7l7-4 7 4v14 M9 21v-4h6v4" />
 );
 
-// ── colour palette & helpers ──────────────────────────────────────
-const C = {
-  bg: "#0d0f14",
-  surface: "#13161e",
-  card: "#181c27",
-  border: "#252a38",
-  accent: "#c9a96e", // warm gold
-  accent2: "#e8c98a",
-  text: "#eef0f6",
-  muted: "#7a8099",
-  danger: "#e05c5c",
-};
-
-const styles = {
-  page: {
-    minHeight: "100vh",
-    background: C.bg,
-    fontFamily: "'Georgia', 'Times New Roman', serif",
-    color: C.text,
-    display: "flex",
-    flexDirection: "column",
-  },
-
-  // ── top bar ──
-  topBar: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    padding: "18px 40px",
-    borderBottom: `1px solid ${C.border}`,
-    background: C.surface,
-    position: "sticky",
-    top: 0,
-    zIndex: 100,
-  },
-  logo: {
-    fontSize: "1.25rem",
-    fontWeight: "700",
-    color: C.accent,
-    letterSpacing: "0.12em",
-    textTransform: "uppercase",
-  },
-  logoutBtn: {
-    display: "flex",
-    alignItems: "center",
-    gap: "8px",
-    background: "transparent",
-    border: `1px solid ${C.border}`,
-    color: C.muted,
-    padding: "8px 16px",
-    borderRadius: "8px",
-    cursor: "pointer",
-    fontSize: "0.85rem",
-    transition: "all .2s",
-  },
-
-  // ── main layout ──
-  main: {
-    flex: 1,
-    maxWidth: "900px",
-    width: "100%",
-    margin: "48px auto",
-    padding: "0 24px",
-  },
-
-  // ── hero card ──
-  heroCard: {
-    background: `linear-gradient(135deg, ${C.card} 0%, #1e2235 100%)`,
-    border: `1px solid ${C.border}`,
-    borderRadius: "20px",
-    padding: "40px",
-    display: "flex",
-    alignItems: "center",
-    gap: "36px",
-    marginBottom: "28px",
-    position: "relative",
-    overflow: "hidden",
-  },
-  heroBg: {
-    position: "absolute",
-    top: "-40px",
-    right: "-40px",
-    width: "220px",
-    height: "220px",
-    borderRadius: "50%",
-    background: `radial-gradient(circle, ${C.accent}22 0%, transparent 70%)`,
-    pointerEvents: "none",
-  },
-  avatar: {
-    width: "100px",
-    height: "100px",
-    borderRadius: "50%",
-    background: `linear-gradient(135deg, ${C.accent} 0%, ${C.accent2} 100%)`,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    fontSize: "2.6rem",
-    fontWeight: "700",
-    color: C.bg,
-    flexShrink: 0,
-    boxShadow: `0 0 0 4px ${C.bg}, 0 0 0 6px ${C.accent}55`,
-  },
-  heroName: {
-    fontSize: "1.9rem",
-    fontWeight: "700",
-    margin: "0 0 6px",
-    letterSpacing: "0.02em",
-  },
-  heroBadge: {
-    display: "inline-flex",
-    alignItems: "center",
-    gap: "6px",
-    background: `${C.accent}22`,
-    border: `1px solid ${C.accent}55`,
-    color: C.accent,
-    borderRadius: "20px",
-    padding: "4px 14px",
-    fontSize: "0.78rem",
-    letterSpacing: "0.08em",
-    textTransform: "uppercase",
-  },
-  editBtn: {
-    marginLeft: "auto",
-    alignSelf: "flex-start",
-    display: "flex",
-    alignItems: "center",
-    gap: "7px",
-    background: "transparent",
-    border: `1px solid ${C.accent}66`,
-    color: C.accent,
-    padding: "9px 18px",
-    borderRadius: "10px",
-    cursor: "pointer",
-    fontSize: "0.85rem",
-    transition: "all .2s",
-    flexShrink: 0,
-  },
-
-  // ── grid ──
-  grid: {
-    display: "grid",
-    gridTemplateColumns: "1fr 1fr",
-    gap: "20px",
-  },
-  infoCard: {
-    background: C.card,
-    border: `1px solid ${C.border}`,
-    borderRadius: "16px",
-    padding: "28px",
-  },
-  infoCardFull: {
-    gridColumn: "1 / -1",
-  },
-  cardLabel: {
-    fontSize: "0.7rem",
-    letterSpacing: "0.14em",
-    textTransform: "uppercase",
-    color: C.muted,
-    marginBottom: "18px",
-    display: "flex",
-    alignItems: "center",
-    gap: "8px",
-  },
-  row: {
-    display: "flex",
-    alignItems: "flex-start",
-    gap: "14px",
-    padding: "14px 0",
-    borderBottom: `1px solid ${C.border}`,
-  },
-  rowIcon: {
-    color: C.accent,
-    marginTop: "2px",
-    flexShrink: 0,
-  },
-  rowLabel: {
-    fontSize: "0.75rem",
-    color: C.muted,
-    marginBottom: "3px",
-  },
-  rowValue: {
-    fontSize: "0.97rem",
-    color: C.text,
-  },
-
-  // ── stats strip ──
-  statsStrip: {
-    display: "grid",
-    gridTemplateColumns: "repeat(3, 1fr)",
-    gap: "20px",
-    marginBottom: "28px",
-  },
-  statCard: {
-    background: C.card,
-    border: `1px solid ${C.border}`,
-    borderRadius: "16px",
-    padding: "24px",
-    textAlign: "center",
-  },
-  statNum: {
-    fontSize: "2rem",
-    fontWeight: "700",
-    color: C.accent,
-    fontFamily: "'Georgia', serif",
-  },
-  statLbl: {
-    fontSize: "0.75rem",
-    color: C.muted,
-    marginTop: "4px",
-    letterSpacing: "0.06em",
-    textTransform: "uppercase",
-  },
-
-  // ── loader / error ──
-  center: {
-    flex: 1,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    flexDirection: "column",
-    gap: "16px",
-    color: C.muted,
-    minHeight: "60vh",
-  },
-};
-
-// ── InfoRow ──────────────────────────────────────────────────────
+// ── INFO ROW COMPONENT ───────────────────────────────────────────
+// Reusable row used inside info cards — shows icon + label + value
+// "last" prop removes the bottom border on the final row
 const InfoRow = ({ icon, label, value, last }) => (
   <div
     style={{
-      ...styles.row,
-      ...(last ? { borderBottom: "none", paddingBottom: 0 } : {}),
+      display: "flex",
+      alignItems: "flex-start",
+      gap: "14px",
+      padding: "14px 0",
+      borderBottom: last ? "none" : `1px solid ${C.border}`,
+      paddingBottom: last ? 0 : undefined,
     }}
   >
-    <span style={styles.rowIcon}>{icon}</span>
+    <span style={{ color: C.accent, marginTop: "2px", flexShrink: 0 }}>
+      {icon}
+    </span>
     <div>
-      <div style={styles.rowLabel}>{label}</div>
-      <div style={styles.rowValue}>{value || "—"}</div>
+      <div style={{ fontSize: "0.75rem", color: C.muted, marginBottom: "3px" }}>
+        {label}
+      </div>
+      <div style={{ fontSize: "0.97rem", color: C.text }}>{value || "—"}</div>
     </div>
   </div>
 );
 
-// ── Main Component ───────────────────────────────────────────────
+// ── MAIN COMPONENT ───────────────────────────────────────────────
 const OwnerProfile = () => {
   const [owner, setOwner] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
+  // ── fetch owner data on page load ──
   useEffect(() => {
     const stored = localStorage.getItem("owner");
     if (!stored) {
       navigate("/ownerlogin");
       return;
-    }
+    } // redirect if not logged in
 
     const parsed = JSON.parse(stored);
-    const id = parsed.ownerId;
 
     axios
-      .get(`http://localhost:8081/owner/${id}`)
+      .get(`http://localhost:8081/owner/${parsed.ownerId}`)
       .then((res) => {
         setOwner(res.data);
         setLoading(false);
       })
       .catch(() => {
-        // fallback to stored data if API fails
         setOwner(parsed);
         setLoading(false);
-      });
+      }); // fallback to localStorage
   }, [navigate]);
 
-  const handleLogout = () => {
-    localStorage.removeItem("owner");
-    navigate("/ownerlogin");
-  };
-
+  // ── get initials from full name for avatar (e.g. "Sahan Dasantha" → "SD") ──
   const initials = (name) =>
     name
       ? name
@@ -322,106 +103,293 @@ const OwnerProfile = () => {
           .slice(0, 2)
       : "O";
 
-  // ── loading ──
+  const handleLogout = () => {
+    localStorage.removeItem("owner");
+    navigate("/ownerlogin");
+  };
+
+  // ── LOADING STATE ────────────────────────────────────────────────
   if (loading)
     return (
-      <div style={styles.page}>
-        <div style={styles.center}>
-          <div
-            style={{
-              width: 44,
-              height: 44,
-              border: `3px solid ${C.border}`,
-              borderTop: `3px solid ${C.accent}`,
-              borderRadius: "50%",
-              animation: "spin 0.9s linear infinite",
-            }}
-          />
-          <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
-          <span>Loading profile…</span>
-        </div>
+      <div
+        style={{ ...T.page, alignItems: "center", justifyContent: "center" }}
+      >
+        <div
+          style={{
+            width: 44,
+            height: 44,
+            border: `3px solid ${C.border}`,
+            borderTop: `3px solid ${C.accent}`,
+            borderRadius: "50%",
+            animation: "spin 0.9s linear infinite",
+          }}
+        />
+        <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
+        <span style={{ color: C.muted }}>Loading profile…</span>
       </div>
     );
 
-  // ── error ──
+  // ── ERROR STATE ──────────────────────────────────────────────────
   if (error)
     return (
-      <div style={styles.page}>
-        <div style={styles.center}>
-          <span style={{ color: C.danger, fontSize: "1.1rem" }}>{error}</span>
-          <button
-            onClick={() => navigate("/ownerlogin")}
-            style={{
-              ...styles.logoutBtn,
-              color: C.accent,
-              borderColor: C.accent,
-            }}
-          >
-            Back to Login
-          </button>
-        </div>
+      <div
+        style={{ ...T.page, alignItems: "center", justifyContent: "center" }}
+      >
+        <span style={{ color: C.danger, fontSize: "1.1rem" }}>{error}</span>
+        <button
+          onClick={() => navigate("/ownerlogin")}
+          style={{ ...T.btnOutline, marginTop: "16px" }}
+        >
+          Back to Login
+        </button>
       </div>
     );
 
+  // ── MAIN RENDER ──────────────────────────────────────────────────
   return (
-    <div style={styles.page}>
+    <div style={T.page}>
       <style>{`
         button:hover { opacity: 0.82; }
         @keyframes fadeUp {
-          from { opacity:0; transform:translateY(18px); }
-          to   { opacity:1; transform:translateY(0); }
+          from { opacity: 0; transform: translateY(18px); }
+          to   { opacity: 1; transform: translateY(0); }
         }
-        .fade-up { animation: fadeUp 0.5s ease both; }
+        .fade-up   { animation: fadeUp 0.5s ease both; }
         .fade-up-2 { animation: fadeUp 0.5s ease 0.1s both; }
         .fade-up-3 { animation: fadeUp 0.5s ease 0.2s both; }
       `}</style>
 
-      {/* Top bar */}
-      <nav style={styles.topBar}>
-        <span style={styles.logo}>🏠 HomeRent</span>
-        <button style={styles.logoutBtn} onClick={handleLogout}>
+      {/* ── TOP BAR ─────────────────────────────────────────────────
+          ← CHANGED: was styles.topBar — now uses T.topBar from theme  */}
+      <nav style={T.topBar}>
+        {/* ← CHANGED: was styles.logo — now uses T.logo from theme */}
+        <span style={T.logo}>🏠 RentSys</span>
+
+        <button
+          onClick={handleLogout}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+            background: "transparent",
+            border: `1px solid ${C.border}`,
+            color: C.muted,
+            padding: "8px 16px",
+            borderRadius: "8px",
+            cursor: "pointer",
+            fontSize: "0.85rem",
+          }}
+        >
           <IconLogout /> Logout
         </button>
       </nav>
 
-      <main style={styles.main}>
-        {/* Hero card */}
-        <div className="fade-up" style={styles.heroCard}>
-          <div style={styles.heroBg} />
-          <div style={styles.avatar}>{initials(owner.fullName)}</div>
+      {/* ── MAIN CONTENT ─────────────────────────────────────────── */}
+      <main
+        style={{
+          flex: 1,
+          maxWidth: "900px",
+          width: "100%",
+          margin: "48px auto",
+          padding: "0 24px",
+        }}
+      >
+        {/* ── HERO CARD ─────────────────────────────────────────────
+            Shows avatar initials, owner name, badge, edit button    */}
+        <div
+          className="fade-up"
+          style={{
+            // ← CHANGED: was styles.heroCard — now spreads T.card + extra styles
+            ...T.card,
+            background: `linear-gradient(135deg, ${C.card} 0%, #1e2235 100%)`,
+            borderRadius: "20px",
+            padding: "40px",
+            display: "flex",
+            alignItems: "center",
+            gap: "36px",
+            marginBottom: "28px",
+            position: "relative",
+            overflow: "hidden",
+          }}
+        >
+          {/* decorative gold glow top-right corner */}
+          <div
+            style={{
+              position: "absolute",
+              top: "-40px",
+              right: "-40px",
+              width: "220px",
+              height: "220px",
+              borderRadius: "50%",
+              background: `radial-gradient(circle, ${C.accent}22 0%, transparent 70%)`,
+              pointerEvents: "none",
+            }}
+          />
+
+          {/* avatar circle with owner initials */}
+          <div
+            style={{
+              width: "100px",
+              height: "100px",
+              borderRadius: "50%",
+              background: `linear-gradient(135deg, ${C.accent} 0%, ${C.accent2} 100%)`,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: "2.6rem",
+              fontWeight: "700",
+              color: C.bg,
+              flexShrink: 0,
+              boxShadow: `0 0 0 4px ${C.bg}, 0 0 0 6px ${C.accent}55`,
+            }}
+          >
+            {initials(owner.fullName)}
+          </div>
+
+          {/* owner name + gold badge */}
           <div>
-            <h1 style={styles.heroName}>{owner.fullName}</h1>
-            <span style={styles.heroBadge}>
+            <h1
+              style={{
+                fontSize: "1.9rem",
+                fontWeight: "700",
+                margin: "0 0 6px",
+                letterSpacing: "0.02em",
+                color: C.text,
+              }}
+            >
+              {owner.fullName}
+            </h1>
+            <span
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "6px",
+                background: `${C.accent}22`,
+                border: `1px solid ${C.accent}55`,
+                color: C.accent,
+                borderRadius: "20px",
+                padding: "4px 14px",
+                fontSize: "0.78rem",
+                letterSpacing: "0.08em",
+                textTransform: "uppercase",
+              }}
+            >
               <IconBuilding /> Property Owner
             </span>
           </div>
+
+          {/* Edit Profile button
+              ← CHANGED: was styles.editBtn — now uses T.btnOutline from theme */}
           <button
-            style={styles.editBtn}
+            style={{
+              ...T.btnOutline,
+              marginLeft: "auto",
+              alignSelf: "flex-start",
+              display: "flex",
+              alignItems: "center",
+              gap: "7px",
+              flexShrink: 0,
+            }}
             onClick={() => navigate(`/owner/edit/${owner.ownerId}`)}
           >
             <IconEdit /> Edit Profile
           </button>
         </div>
 
-        {/* Stats */}
-        <div className="fade-up-2" style={styles.statsStrip}>
+        {/* ── STATS STRIP ───────────────────────────────────────────
+            3 stat cards in a row showing numbers
+            ← CHANGED: was styles.statsStrip + styles.statCard
+            now uses T.card from theme for each card                 */}
+        <div
+          className="fade-up-2"
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(3, 1fr)",
+            gap: "20px",
+            marginBottom: "28px",
+          }}
+        >
           {[
             { num: "—", lbl: "Properties Listed" },
             { num: "—", lbl: "Active Tenants" },
             { num: "—", lbl: "Years on Platform" },
           ].map((s, i) => (
-            <div key={i} style={styles.statCard}>
-              <div style={styles.statNum}>{s.num}</div>
-              <div style={styles.statLbl}>{s.lbl}</div>
+            <div
+              key={i}
+              style={{ ...T.card, textAlign: "center", padding: "24px" }}
+            >
+              <div
+                style={{
+                  fontSize: "2rem",
+                  fontWeight: "700",
+                  color: C.accent,
+                  fontFamily: "'Georgia', serif",
+                }}
+              >
+                {s.num}
+              </div>
+              <div
+                style={{
+                  fontSize: "0.75rem",
+                  color: C.muted,
+                  marginTop: "4px",
+                  letterSpacing: "0.06em",
+                  textTransform: "uppercase",
+                }}
+              >
+                {s.lbl}
+              </div>
             </div>
           ))}
         </div>
 
-        {/* Info grid */}
-        <div className="fade-up-3" style={styles.grid}>
-          {/* Contact info */}
-          <div style={styles.infoCard}>
-            <div style={styles.cardLabel}>
+        {/* ← ADDED: Manage My Properties button
+            Navigates to /ownerproperties page where owner can add/view properties */}
+        <div className="fade-up-2" style={{ marginBottom: "28px" }}>
+          <button
+            onClick={() => navigate("/ownerproperties")}
+            style={{
+              ...T.btnGold, // gold filled button from theme
+              width: "100%",
+              padding: "14px",
+              fontSize: "1rem",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "10px",
+            }}
+          >
+            🏠 Manage My Properties
+          </button>
+        </div>
+
+        {/* ── INFO CARDS GRID ───────────────────────────────────────
+            2 columns: Contact Info + Personal Details
+            1 full-width row: Account Info
+            ← CHANGED: was styles.grid + styles.infoCard
+            now uses T.card from theme                               */}
+        <div
+          className="fade-up-3"
+          style={{
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr",
+            gap: "20px",
+          }}
+        >
+          {/* Contact Information */}
+          <div style={T.card}>
+            <div
+              style={{
+                fontSize: "0.7rem",
+                letterSpacing: "0.14em",
+                textTransform: "uppercase",
+                color: C.muted,
+                marginBottom: "18px",
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+              }}
+            >
               <IconMail /> Contact Information
             </div>
             <InfoRow
@@ -437,9 +405,20 @@ const OwnerProfile = () => {
             />
           </div>
 
-          {/* Personal info */}
-          <div style={styles.infoCard}>
-            <div style={styles.cardLabel}>
+          {/* Personal Details */}
+          <div style={T.card}>
+            <div
+              style={{
+                fontSize: "0.7rem",
+                letterSpacing: "0.14em",
+                textTransform: "uppercase",
+                color: C.muted,
+                marginBottom: "18px",
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+              }}
+            >
               <IconId /> Personal Details
             </div>
             <InfoRow
@@ -455,17 +434,36 @@ const OwnerProfile = () => {
             />
           </div>
 
-          {/* Owner ID — full width */}
-          <div style={{ ...styles.infoCard, ...styles.infoCardFull }}>
-            <div style={styles.cardLabel}>
+          {/* Account Information — gridColumn spans both columns */}
+          <div style={{ ...T.card, gridColumn: "1 / -1" }}>
+            <div
+              style={{
+                fontSize: "0.7rem",
+                letterSpacing: "0.14em",
+                textTransform: "uppercase",
+                color: C.muted,
+                marginBottom: "18px",
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+              }}
+            >
               <IconBuilding /> Account Information
             </div>
             <div style={{ display: "flex", gap: "40px", flexWrap: "wrap" }}>
+              {/* Owner ID */}
               <div>
-                <div style={styles.rowLabel}>Owner ID</div>
                 <div
                   style={{
-                    ...styles.rowValue,
+                    fontSize: "0.75rem",
+                    color: C.muted,
+                    marginBottom: "3px",
+                  }}
+                >
+                  Owner ID
+                </div>
+                <div
+                  style={{
                     color: C.accent,
                     fontFamily: "monospace",
                     fontSize: "1.05rem",
@@ -474,8 +472,18 @@ const OwnerProfile = () => {
                   #{String(owner.ownerId).padStart(5, "0")}
                 </div>
               </div>
+
+              {/* Account Status with green dot */}
               <div>
-                <div style={styles.rowLabel}>Account Status</div>
+                <div
+                  style={{
+                    fontSize: "0.75rem",
+                    color: C.muted,
+                    marginBottom: "3px",
+                  }}
+                >
+                  Account Status
+                </div>
                 <div
                   style={{
                     display: "inline-flex",
@@ -500,6 +508,7 @@ const OwnerProfile = () => {
             </div>
           </div>
         </div>
+        {/* ── END INFO CARDS GRID ─────────────────────────────────── */}
       </main>
     </div>
   );
