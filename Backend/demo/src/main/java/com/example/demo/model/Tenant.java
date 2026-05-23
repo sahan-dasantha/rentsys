@@ -24,7 +24,7 @@ public class Tenant {
  
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "recident_id", length = 200)
+    @Column(name = "resident_id")
     private Long residentId;
 
     @Column(name = "full_name", length = 200)
@@ -44,5 +44,8 @@ public class Tenant {
 
     @Column(name = "date_registered")
     private Date dateRegistered;
+
+    @Column(name = "password", length = 100)
+    private String password;
 
 }
