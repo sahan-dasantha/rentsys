@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom"; //uses for page navigation
 import axios from "axios";
-import { C, T } from "../styles/theme"; // ← ADDED: replaces the entire local C object and styles object
+import { C, T } from "../Styles/theme"; // theme colors and reusable styles
+import { Building2 } from "lucide-react"; // modern icon
 
 // ── ICON COMPONENTS ──────────────────────────────────────────────
 // These small SVG icons are kept here since they're specific to this page
@@ -65,31 +66,46 @@ const InfoRow = ({ icon, label, value, last }) => (
 
 // ── MAIN COMPONENT ───────────────────────────────────────────────
 const OwnerProfile = () => {
+  //Stores owner data
   const [owner, setOwner] = useState(null);
+
+  //Loading state
   const [loading, setLoading] = useState(true);
+
+  //error state
   const [error, setError] = useState("");
+
+  //uses for navigation
   const navigate = useNavigate();
 
-  // ── fetch owner data on page load ──
+  // ── fetch owner data when page load ──
   useEffect(() => {
+    //Get owner data from localStorage
     const stored = localStorage.getItem("owner");
+
+    //If no owner found redirect to login page
     if (!stored) {
       navigate("/ownerlogin");
       return;
-    } // redirect if not logged in
+    }
 
+    // Convert JSON string into object
     const parsed = JSON.parse(stored);
 
+    //call backend api
     axios
       .get(`http://localhost:8081/owner/${parsed.ownerId}`)
       .then((res) => {
         setOwner(res.data);
         setLoading(false);
       })
+
+      //If backend fails
       .catch(() => {
+        //Use localStorage data instead
         setOwner(parsed);
         setLoading(false);
-      }); // fallback to localStorage
+      });
   }, [navigate]);
 
   // ── get initials from full name for avatar (e.g. "Sahan Dasantha" → "SD") ──
@@ -103,12 +119,17 @@ const OwnerProfile = () => {
           .slice(0, 2)
       : "O";
 
+  //logout function
   const handleLogout = () => {
+    //remove owner from localStorage
     localStorage.removeItem("owner");
+
+    //navigate to login page
     navigate("/ownerlogin");
   };
 
   // ── LOADING STATE ────────────────────────────────────────────────
+  //Shows while fetching owner data
   if (loading)
     return (
       <div
@@ -124,6 +145,8 @@ const OwnerProfile = () => {
             animation: "spin 0.9s linear infinite",
           }}
         />
+
+        {/*Spiner animation*/}
         <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
         <span style={{ color: C.muted }}>Loading profile…</span>
       </div>
@@ -136,6 +159,8 @@ const OwnerProfile = () => {
         style={{ ...T.page, alignItems: "center", justifyContent: "center" }}
       >
         <span style={{ color: C.danger, fontSize: "1.1rem" }}>{error}</span>
+
+        {/*back button*/}
         <button
           onClick={() => navigate("/ownerlogin")}
           style={{ ...T.btnOutline, marginTop: "16px" }}
@@ -145,7 +170,7 @@ const OwnerProfile = () => {
       </div>
     );
 
-  // ── MAIN RENDER ──────────────────────────────────────────────────
+  // ── MAIN UI ──────────────────────────────────────────────────
   return (
     <div style={T.page}>
       <style>{`
@@ -159,11 +184,36 @@ const OwnerProfile = () => {
         .fade-up-3 { animation: fadeUp 0.5s ease 0.2s both; }
       `}</style>
 
-      {/* ── TOP BAR ─────────────────────────────────────────────────
-          ← CHANGED: was styles.topBar — now uses T.topBar from theme  */}
+      {/* ── TOP BAR ─────────────────────────────────────────────────*/}
       <nav style={T.topBar}>
-        {/* ← CHANGED: was styles.logo — now uses T.logo from theme */}
-        <span style={T.logo}>🏠 RentSys</span>
+        <span
+          style={{
+            display: "flex", // ← ADDED: flex row
+            alignItems: "center", // ← ADDED: vertically center icon + text
+            gap: "10px", // ← ADDED: space between icon and text
+            fontSize: "1.4rem",
+            fontWeight: "700",
+            color: C.accent, // gold
+            fontFamily: "'Georgia', serif",
+            letterSpacing: "0.1em",
+            textTransform: "uppercase",
+          }}
+        >
+          <div
+            style={{
+              background: "rgba(201,169,110,0.12)",
+              padding: "4px",
+              borderRadius: "12px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              border: "1px solid rgba(201,169,110,0.25)",
+            }}
+          >
+            <Building2 size={24} color="#c9a96e" strokeWidth={2.2} />
+          </div>
+          RentSys
+        </span>
 
         <button
           onClick={handleLogout}
@@ -199,7 +249,6 @@ const OwnerProfile = () => {
         <div
           className="fade-up"
           style={{
-            // ← CHANGED: was styles.heroCard — now spreads T.card + extra styles
             ...T.card,
             background: `linear-gradient(135deg, ${C.card} 0%, #1e2235 100%)`,
             borderRadius: "20px",
@@ -278,8 +327,6 @@ const OwnerProfile = () => {
             </span>
           </div>
 
-          {/* Edit Profile button
-              ← CHANGED: was styles.editBtn — now uses T.btnOutline from theme */}
           <button
             style={{
               ...T.btnOutline,
@@ -296,10 +343,7 @@ const OwnerProfile = () => {
           </button>
         </div>
 
-        {/* ── STATS STRIP ───────────────────────────────────────────
-            3 stat cards in a row showing numbers
-            ← CHANGED: was styles.statsStrip + styles.statCard
-            now uses T.card from theme for each card                 */}
+        {/* 3 stat cards in a row showing numbers */}
         <div
           className="fade-up-2"
           style={{
@@ -343,7 +387,7 @@ const OwnerProfile = () => {
           ))}
         </div>
 
-        {/* ← ADDED: Manage My Properties button
+        {/* Manage My Properties button
             Navigates to /ownerproperties page where owner can add/view properties */}
         <div className="fade-up-2" style={{ marginBottom: "28px" }}>
           <button
@@ -359,7 +403,7 @@ const OwnerProfile = () => {
               gap: "10px",
             }}
           >
-            🏠 Manage My Properties
+            Manage My Properties
           </button>
         </div>
 
