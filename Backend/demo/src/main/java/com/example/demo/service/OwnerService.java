@@ -24,7 +24,7 @@ public class OwnerService {
         owner = ownerRepo.save(owner);
         
         if (owner.getOwnerId() == null){
-               throw new RuntimeException("Owner save request is failed"); 
+               throw new RuntimeException("Owner save request is failed!"); 
         } else{
             return ResponseEntity.ok(owner);
         }  
@@ -40,20 +40,20 @@ public class OwnerService {
     //get owner by id method
     public ResponseEntity<Owner> getOwnerById(Long owner_id) {
         if(owner_id == null){   //checking whether the id is null or not
-            throw new RuntimeException("Owner Id is required.");
+            throw new RuntimeException("Owner Id is required!");
         }else{
             Optional<Owner> optOwner = ownerRepo.findById(owner_id);
             if(optOwner.isPresent()){
                 return ResponseEntity.ok(optOwner.get());
             }else{
-                throw new RuntimeException("Data not found for given owner id");
+                throw new RuntimeException("Data not found for given owner id!");
             }
         }
     }
     //updating owner method
     public ResponseEntity<Owner> updateOwner(Long owner_id, Owner owner) {
         if(owner_id == null){  //checking whether the id is null or not
-            throw new RuntimeException("Owner id required");
+            throw new RuntimeException("Owner id is required!");
         }else{
             Optional<Owner> optOwner = ownerRepo.findById(owner_id);
             if(optOwner.isPresent()){
@@ -73,7 +73,7 @@ public class OwnerService {
 
 
             }else{
-                throw new RuntimeException("Data not found for given owner id");
+                throw new RuntimeException("Data not found for given owner id!");
             }
         }
     }
@@ -81,14 +81,14 @@ public class OwnerService {
     //delete owner method
     public ResponseEntity<String> deleteOwner(Long owner_id) {
          if(owner_id == null){  //checking whether the id is null or not
-            throw new RuntimeException("Owner id required");
+            throw new RuntimeException("Owner id is required!");
         }else{
             Optional<Owner> optOwner = ownerRepo.findById(owner_id);
             if(optOwner.isPresent()){
                 ownerRepo.deleteById(owner_id);
-                return ResponseEntity.ok("Owner deleted");
+                return ResponseEntity.ok("Owner was deleted.");
             }else{
-                throw new RuntimeException("Data not found for given owner id");
+                throw new RuntimeException("Data not found for given owner id!");
             }
         }
         
@@ -101,12 +101,12 @@ public class OwnerService {
 
         //check email
         if(owner == null){
-            return ResponseEntity.badRequest().body("Email not found");
+            return ResponseEntity.badRequest().body("Email not found!");
         }
 
         //check password
         if(!owner.getPassword().equals(loginRequest.getPassword())){
-            return ResponseEntity.badRequest().body("Incorrect password");
+            return ResponseEntity.badRequest().body("Incorrect password!");
         }
 
         return ResponseEntity.ok(owner);
