@@ -1,6 +1,8 @@
 package com.example.demo.model;
 
-import java.util.Date;
+import java.time.LocalDate;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -43,7 +45,8 @@ public class Tenant {
     private String occupation;
 
     @Column(name = "date_registered")
-    private Date dateRegistered;
+    @JsonFormat(pattern = "MM/dd/yyyy")
+    private LocalDate dateRegistered;
 
     @Column(name = "password", length = 100)
     private String password;

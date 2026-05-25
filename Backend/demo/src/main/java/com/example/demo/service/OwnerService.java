@@ -60,12 +60,13 @@ public class OwnerService {
 
                 Owner ownerUpdateObj = optOwner.get();  //creating owner object to add new data
 
-                ownerUpdateObj.setFullName(owner.getFullName());
-                ownerUpdateObj.setNationalId(owner.getNationalId());
-                ownerUpdateObj.setPhoneNumber(owner.getPhoneNumber());
-                ownerUpdateObj.setEmail(owner.getEmail());
-                ownerUpdateObj.setAddress(owner.getAddress());
-                ownerUpdateObj.setPassword(owner.getPassword());
+                // Only update if value is provided
+            if(owner.getFullName() != null)     ownerUpdateObj.setFullName(owner.getFullName());
+            if(owner.getNationalId() != null)   ownerUpdateObj.setNationalId(owner.getNationalId());
+            if(owner.getPhoneNumber() != null)  ownerUpdateObj.setPhoneNumber(owner.getPhoneNumber());
+            if(owner.getEmail() != null)        ownerUpdateObj.setEmail(owner.getEmail());
+            if(owner.getAddress() != null)      ownerUpdateObj.setAddress(owner.getAddress());
+            if(owner.getPassword() != null)     ownerUpdateObj.setPassword(owner.getPassword());
 
                 ownerUpdateObj = ownerRepo.save(ownerUpdateObj);  //save new data in the database
 
