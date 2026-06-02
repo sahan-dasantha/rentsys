@@ -45,7 +45,7 @@ public class Tenant {
     private String occupation;
 
     @Column(name = "date_registered")
-    @JsonFormat(pattern = "MM/dd/yyyy")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate dateRegistered;
 
     @Column(name = "password", length = 100)

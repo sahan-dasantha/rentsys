@@ -4,6 +4,38 @@ import { C, T } from "../Styles/theme";
 import { createOwner } from "../api/ownerApi";
 // 👆 This is your Axios API function that connects to Spring Boot
 
+// ── FIELD COMPONENT ──────────────────────────────────────────────
+// ← FIXED: defined OUTSIDE OwnerSignup so React doesn't recreate
+//   it on every keystroke — fixes the cursor focus loss bug
+// ← value and onChange passed as props so the field stays controlled
+const Field = ({
+  label,
+  name,
+  type = "text",
+  placeholder,
+  readOnly = false,
+  value,
+  onChange,
+}) => (
+  <div style={{ marginBottom: "18px" }}>
+    <label style={T.label}>{label}</label>
+    <input
+      type={type}
+      name={name}
+      style={{
+        ...T.input,
+        cursor: readOnly ? "not-allowed" : "text",
+        opacity: readOnly ? 0.6 : 1,
+      }}
+      placeholder={placeholder}
+      value={value} // ← FIXED: value comes from parent state
+      onChange={onChange} // ← FIXED: onChange updates parent state
+      readOnly={readOnly}
+      required={!readOnly}
+    />
+  </div>
+);
+
 const OwnerSignup = () => {
   const navigate = useNavigate(); //initialize navigator
   //  State to store form data
@@ -52,21 +84,6 @@ const OwnerSignup = () => {
     }
   };
 
-  //reusable field renderer to avoid repeating styled divs
-  const Field = ({ label, name, type = "text", placeholder }) => (
-    <div style={{ marginBottom: "18px" }}>
-      <label style={T.label}>{label}</label> {/*styled lable*/}
-      <input
-        type={type}
-        style={T.input}
-        name={name}
-        value={owner[name]}
-        onChange={handleChange}
-        placeholder={placeholder}
-      />
-    </div>
-  );
-
   return (
     <div style={T.page}>
       <div
@@ -114,12 +131,16 @@ const OwnerSignup = () => {
               label="Full Name"
               name="fullName"
               placeholder="Enter your full name"
+              value={owner.fullName}
+              onChange={handleChange}
             />
 
             <Field
               label="NIC Number"
               name="nationalId"
               placeholder="Enter your NIC number"
+              value={owner.nationalId}
+              onChange={handleChange}
             />
 
             {/* ← ADDED: two-column row for Email and Phone */}
@@ -135,12 +156,16 @@ const OwnerSignup = () => {
                 name="email"
                 type="email"
                 placeholder="Enter email"
+                value={owner.email}
+                onChange={handleChange}
               />
               <Field
                 label="Phone Number"
                 name="phoneNumber"
                 type="tel"
                 placeholder="Enter phone"
+                value={owner.phoneNumber}
+                onChange={handleChange}
               />
             </div>
 
@@ -148,6 +173,8 @@ const OwnerSignup = () => {
               label="Address"
               name="address"
               placeholder="Enter your address"
+              value={owner.address}
+              onChange={handleChange}
             />
 
             <Field
@@ -155,6 +182,8 @@ const OwnerSignup = () => {
               name="password"
               type="password"
               placeholder="Create a password"
+              value={owner.password}
+              onChange={handleChange}
             />
 
             {/* ← CHANGED: replaced "btn btn-dark" with gold theme button */}
