@@ -1,29 +1,96 @@
-import Footer from "../components/Footer";
-import axios from "axios";
-import { useState } from "react";
+import axios from "axios"; //http library to call the springboot API
+import { useState } from "react"; //react hook to manage component state
 import { useNavigate } from "react-router-dom"; //imports the navigation hook
 import { C, T } from "../Styles/theme"; //import theme colors and styles
 
 const OwnerLogin = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  // ── State variables ──────────────────────────────────────────
+  // Each useState() creates a variable + a function to update it.
+  // React re-renders the component whenever any state changes.
+  const [email, setEmail] = useState(""); // Stores what the user types in the email field
+  const [password, setPassword] = useState(""); // Stores what the user types in the password field
+  const [rememberMe, setRememberMe] = useState(false); // Tracks whether "Remember me" checkbox is ticked
+  const [isLoading, setIsLoading] = useState(false); // True while waiting for the API response
+  const [error, setError] = useState(""); //Holds any errror msg to show the user
   const navigate = useNavigate(); //initializes navigator
 
-  //login function
+  // ── Validation ───────────────────────────────────────────────
+  // Runs before the API call to catch obvious mistakes early.
+  // Returns an error string if something is wrong, or null if everything is fine.
+
+  const validate = () => {
+    if (!email.trim()) return "Please enter your email address."; // email is empty or only spaces
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
+      return "Please enter a valid email address."; // email doesn't match basic format (e.g. missing @)
+
+    if (!password) return "Please enter your password."; // password field is empty
+
+    if (password.length < 6) return "Password must be at least 6 characters."; // too short to be a real password
+
+    return null; // no errors — validation passed
+  };
+
+  // ── Login handler ─────────────────────────────────────────────
+  // Called when the form is submitted.
+  // async/await lets us wait for the API response before continuing.
   const handleLogin = async (e) => {
-    e.preventDefault();
+    e.preventDefault(); // Stops the browser from refreshing the page on form submit
+
+    setError(""); // Clear any previous error message before trying again
+
+    // Run validation first — if it fails, show the error and stop here
+    const validationError = validate();
+    if (validationError) {
+      setError(validationError);
+      return; // Don't call the API if inputs are invalid
+    }
+
+    setIsLoading(true); // Show "Signing in..." on the button and disable inputs
 
     try {
+      // Send POST request to the Spring Boot backend with email and password
+      // Spring Boot is running on port 8081 in this project
       const response = await axios.post(
         "http://localhost:8081/owner/ownerlogin",
 
         { email, password },
       );
+      console.log("Spring Boot returned:", response.data);
 
-      localStorage.setItem("owner", JSON.stringify(response.data)); //saves owner data so profile page can read it
-      navigate("/ownerprofile"); //Redirects to profile after login
-    } catch (error) {
-      alert(error.response?.data || "Login failed");
+      // Destructure only the fields we need from the response
+      // Avoid storing the full response — it may contain sensitive data we don't need
+      const { ownerId, fullName, email: ownerEmail } = response.data;
+
+      // "Remember me" logic:
+      // - localStorage  → data stays saved even after closing the browser tab
+      // - sessionStorage → data is cleared as soon as the tab is closed
+
+      localStorage.setItem(
+        "owner",
+        JSON.stringify({ ownerId, fullName, email: ownerEmail }),
+      );
+
+      // Only difference for "remember me" — store a flag
+      if (!rememberMe) {
+        sessionStorage.setItem("ownerTemp", "true"); // marks session-only preference
+      }
+
+      navigate("/ownerprofile"); // Redirect to the owner's profile page on success
+    } catch (err) {
+      const errData = err.response?.data;
+
+      if (typeof errData === "string") {
+        setError(errData); // "Email not found!" or "Incorrect password!"
+      } else if (errData?.message) {
+        setError(errData.message); // Spring Boot 500 error object has a "message" field
+      } else {
+        setError("Login failed. Please check your credentials.");
+      }
+    } finally {
+      // "finally" runs whether the request succeeded or failed
+      // Always turn off the loading state so the button becomes clickable again
+      setIsLoading(false);
     }
   };
 
@@ -76,9 +143,29 @@ const OwnerLogin = () => {
               marginBottom: "28px",
             }}
           >
-            welcome back - sign in to your acccount
+            welcome back - sign in to your account
           </p>
-          <form onSubmit={handleLogin}>
+
+          {/* ── Error banner ──────────────────────────────────────
+              Only renders if the error state is not an empty string.
+              Shows validation errors and API errors in one place.      */}
+          {error && (
+            <div
+              style={{
+                background: "#fff0f0", // light red background
+                border: "1px solid #ffcccc", // soft red border
+                color: "#cc0000", // dark red text
+                borderRadius: "8px",
+                padding: "10px 14px",
+                fontSize: "0.85rem",
+                marginBottom: "18px",
+              }}
+            >
+              {error}
+            </div>
+          )}
+
+          <form onSubmit={handleLogin} noValidate>
             <div style={{ marginBottom: "18px" }}>
               <label style={T.label}>Email Address:</label>
 
@@ -87,7 +174,8 @@ const OwnerLogin = () => {
                 style={T.input}
                 placeholder="Enter your email"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => setEmail(e.target.value)} // update state on every keystroke
+                disabled={isLoading} // lock the field while the API call is in progress
               />
             </div>
 
@@ -100,6 +188,7 @@ const OwnerLogin = () => {
                 placeholder="Enter your password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                disabled={isLoading}
               />
             </div>
 
@@ -122,7 +211,8 @@ const OwnerLogin = () => {
               >
                 <input
                   type="checkbox"
-                  name="remember"
+                  checked={rememberMe} // controlled checkbox
+                  onChange={(e) => setRememberMe(e.target.checked)} // update state when ticked/unticked
                   style={{
                     accentColor: C.accent,
                     width: "15px",
@@ -133,8 +223,18 @@ const OwnerLogin = () => {
               </label>
             </div>
 
-            <button type="submit" style={{ ...T.btnGold, width: "100%" }}>
-              Login
+            <button
+              type="submit"
+              style={{
+                ...T.btnGold,
+                width: "100%",
+                opacity: isLoading ? 0.7 : 1, // visually dim while loading
+                cursor: isLoading ? "not-allowed" : "pointer", // change cursor to show it's busy
+              }}
+              disabled={isLoading}
+            >
+              {isLoading ? "Signing in..." : "Login"}
+              {/* Show different text depending on loading state */}
             </button>
           </form>
 
@@ -146,6 +246,7 @@ const OwnerLogin = () => {
               fontSize: "0.85rem",
             }}
           >
+            Don't have an account?{" "}
             <span
               onClick={() => navigate("/ownersignup")}
               style={{
@@ -156,7 +257,6 @@ const OwnerLogin = () => {
             >
               Register here
             </span>
-            Don't have an account?{" "}
           </p>
         </div>
       </div>

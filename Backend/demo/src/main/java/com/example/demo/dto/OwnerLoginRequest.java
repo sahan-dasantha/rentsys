@@ -7,7 +7,6 @@ import lombok.Setter;
 
 public class OwnerLoginRequest {
 
-    private String email;
-    private String password;
-
+    private String email;    // receives email from React
+    private String password; // receives password from React
 }

@@ -81,7 +81,8 @@ const OwnerProfile = () => {
   // ── fetch owner data when page load ──
   useEffect(() => {
     //Get owner data from localStorage
-    const stored = localStorage.getItem("owner");
+    const stored =
+      localStorage.getItem("owner") || sessionStorage.getItem("owner");
 
     //If no owner found redirect to login page
     if (!stored) {
@@ -123,6 +124,7 @@ const OwnerProfile = () => {
   const handleLogout = () => {
     //remove owner from localStorage
     localStorage.removeItem("owner");
+    sessionStorage.removeItem("owner");
 
     //navigate to login page
     navigate("/ownerlogin");

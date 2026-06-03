@@ -180,7 +180,8 @@ const OwnerProperties = () => {
 
   // ── load owner + properties on mount ──
   useEffect(() => {
-    const stored = localStorage.getItem("owner");
+    const stored =
+      localStorage.getItem("owner") || sessionStorage.getItem("owner");
     if (!stored) {
       navigate("/ownerlogin");
       return;
@@ -314,6 +315,7 @@ const OwnerProperties = () => {
           <button
             onClick={() => {
               localStorage.removeItem("owner");
+              sessionStorage.removeItem("owner");
               navigate("/ownerlogin");
             }}
             style={{ ...T.btnDanger, padding: "8px 16px", fontSize: "0.85rem" }}

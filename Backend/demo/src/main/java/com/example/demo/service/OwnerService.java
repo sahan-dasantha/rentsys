@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import com.example.demo.dto.OwnerLoginResponse;
 
 import com.example.demo.dto.OwnerLoginRequest;
 import com.example.demo.model.Owner;
@@ -98,7 +99,13 @@ public class OwnerService {
     //Owner login method
     public ResponseEntity<?> loginOwner(OwnerLoginRequest loginRequest){
 
+        System.out.println("Email received: " + loginRequest.getEmail());       // ← add this
+    System.out.println("Password received: " + loginRequest.getPassword()); 
+    
         Owner owner = ownerRepo.findByEmail(loginRequest.getEmail());
+
+
+    System.out.println("Owner found: " + owner); 
 
         //check email
         if(owner == null){
@@ -110,7 +117,14 @@ public class OwnerService {
             return ResponseEntity.badRequest().body("Incorrect password!");
         }
 
-        return ResponseEntity.ok(owner);
+        // ✅ Return only safe fields — never send password back to frontend
+    OwnerLoginResponse response = new OwnerLoginResponse(
+        owner.getOwnerId(),   // Long ownerId
+        owner.getFullName(),  // String fullName
+        owner.getEmail()      // String email
+    );
+
+        return ResponseEntity.ok(response);
 
     }
     
