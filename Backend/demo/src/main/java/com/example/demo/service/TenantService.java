@@ -6,6 +6,9 @@ import java.util.Optional;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+
+import com.example.demo.dto.TenantLoginRequest;
+import com.example.demo.dto.TenantLoginResponse;
 import com.example.demo.model.Tenant;
 import com.example.demo.repository.TenantRepo;
 
@@ -91,6 +94,32 @@ public class TenantService {
                 throw new RuntimeException("Data not found for given tenant id!");
             }
         }
+
+    }
+
+    //Tenant login method
+    public ResponseEntity<?> loginTenant(TenantLoginRequest loginRequest){
+
+        Tenant tenant = tenantRepo.findByEmail(loginRequest.getEmail());
+
+        //check email
+        if(tenant == null){
+            return ResponseEntity.badRequest().body("Email not found!");
+        }
+
+        //check password
+        if(!tenant.getPassword().equals(loginRequest.getPassword())){
+            return ResponseEntity.badRequest().body("Incorrect password!");
+        }
+
+        // ✅ Return only safe fields — never send password back to frontend
+    TenantLoginResponse response = new TenantLoginResponse(
+        tenant.getResidentId(),   // Long TenantId
+        tenant.getFullName(),  // String fullName
+        tenant.getEmail()      // String email
+    );
+
+        return ResponseEntity.ok(response);
 
     }
 

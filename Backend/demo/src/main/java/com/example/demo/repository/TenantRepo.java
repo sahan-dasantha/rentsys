@@ -4,7 +4,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.example.demo.model.Tenant;
 
-public interface TenantRepo extends JpaRepository<Tenant , Long> {
 
+public interface TenantRepo extends JpaRepository<Tenant , Long> {
+    Tenant findByEmail(String email);
     
 } 

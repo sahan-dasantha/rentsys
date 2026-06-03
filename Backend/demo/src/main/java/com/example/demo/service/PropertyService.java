@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+
 import com.example.demo.model.Owner;
 import com.example.demo.model.Property;
 import com.example.demo.repository.OwnerRepo;
@@ -58,5 +59,12 @@ public class PropertyService {
     }
     throw new RuntimeException("Property not found");
     }
+
+    // get ALL properties — used for tenant property search
+    public ResponseEntity<List<Property>> getAllProperties() {
+    return ResponseEntity.ok(propertyRepo.findAll());
+}
+
+
     
 }

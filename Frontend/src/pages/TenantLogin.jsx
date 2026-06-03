@@ -52,7 +52,10 @@ const TenantLogin = () => {
         { email, password },
       );
 
-      console.log("Spring Boot returned:", response.data);
+      console.log(
+        "Tenant Spring Boot returned:",
+        JSON.stringify(response.data),
+      );
 
       // destructure only the fields we need from response
       // avoids storing unnecessary or sensitive data

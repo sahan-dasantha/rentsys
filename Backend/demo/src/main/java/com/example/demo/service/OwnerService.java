@@ -99,13 +99,7 @@ public class OwnerService {
     //Owner login method
     public ResponseEntity<?> loginOwner(OwnerLoginRequest loginRequest){
 
-        System.out.println("Email received: " + loginRequest.getEmail());       // ← add this
-    System.out.println("Password received: " + loginRequest.getPassword()); 
-    
         Owner owner = ownerRepo.findByEmail(loginRequest.getEmail());
-
-
-    System.out.println("Owner found: " + owner); 
 
         //check email
         if(owner == null){

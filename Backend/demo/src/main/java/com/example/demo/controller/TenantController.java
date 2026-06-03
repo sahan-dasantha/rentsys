@@ -3,6 +3,7 @@ package com.example.demo.controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.demo.dto.TenantLoginRequest;
 import com.example.demo.model.Tenant;
 import com.example.demo.service.TenantService;
 
@@ -57,4 +58,11 @@ public class TenantController {
     public ResponseEntity<String> deleteTenant(@PathVariable Long tenant_id){
         return tenantService.deleteTenant(tenant_id);
     } 
+
+    //Owner login API
+    @PostMapping("/tenantlogin")
+    public ResponseEntity<?> loginTenant(@RequestBody TenantLoginRequest loginRequest) {
+        
+        return tenantService.loginTenant(loginRequest);
+    }
 }

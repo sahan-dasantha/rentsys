@@ -54,6 +54,12 @@ public class PropertyController {
     public ResponseEntity<String> delete(@PathVariable Long property_id){
         return propertyService.deleteProperty(property_id);
     }
+
+    // GET /property — returns all properties for tenant search
+    @GetMapping
+    public ResponseEntity<List<Property>> getAllProperties() {
+    return propertyService.getAllProperties();
+}
     
     
 }
