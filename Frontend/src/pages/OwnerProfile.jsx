@@ -389,9 +389,17 @@ const OwnerProfile = () => {
           ))}
         </div>
 
-        {/* Manage My Properties button
-            Navigates to /ownerproperties page where owner can add/view properties */}
-        <div className="fade-up-2" style={{ marginBottom: "28px" }}>
+        {/* ── ACTION BUTTONS ROW ───────────────────────────────────────
+    Manage Properties (gold) + View Requests (outlined)         */}
+        <div
+          className="fade-up-2"
+          style={{
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr",
+            gap: "16px",
+            marginBottom: "28px",
+          }}
+        >
           <button
             onClick={() => navigate("/ownerproperties")}
             style={{
@@ -406,6 +414,24 @@ const OwnerProfile = () => {
             }}
           >
             Manage My Properties
+          </button>
+
+          <button
+            onClick={() => navigate("/owner/requests")}
+            style={{
+              ...T.btnOutline,
+              width: "100%",
+              padding: "14px",
+              fontSize: "1rem",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "10px",
+              borderColor: `${C.accent}66`, // slightly more visible gold border
+              color: C.accent,
+            }}
+          >
+            📋 Rental Requests
           </button>
         </div>
 

@@ -66,123 +66,143 @@ const InfoRow = ({ icon, label, value, last }) => (
 
 // ── PROPERTY SEARCH RESULT CARD ──────────────────────────────────
 // Displays a single property returned from search results
-const PropertyCard = ({ property }) => (
-  <div
-    style={{
-      background: C.card,
-      border: `1px solid ${C.border}`,
-      borderRadius: "14px",
-      overflow: "hidden",
-      transition: "transform .2s, border-color .2s",
-    }}
-    onMouseEnter={(e) => {
-      e.currentTarget.style.transform = "translateY(-3px)";
-      e.currentTarget.style.borderColor = C.accent;
-    }}
-    onMouseLeave={(e) => {
-      e.currentTarget.style.transform = "translateY(0)";
-      e.currentTarget.style.borderColor = C.border;
-    }}
-  >
-    {/* colored top bar by property type */}
-    <div
-      style={{
-        height: "3px",
-        background:
-          property.type === "House"
-            ? `linear-gradient(90deg, ${C.accent}, ${C.accent2})`
-            : property.type === "Apartment"
-              ? "linear-gradient(90deg, #7eb8e8, #a8d4f5)"
-              : property.type === "Villa"
-                ? "linear-gradient(90deg, #5ecb8a, #8de8b0)"
-                : "linear-gradient(90deg, #e09b5c, #f0be8a)",
-      }}
-    />
+const PropertyCard = ({ property }) => {
+  const navigate = useNavigate(); //each card gets its own navigate
 
-    <div style={{ padding: "20px" }}>
-      {/* type icon + title + status badge */}
+  return (
+    <div
+      onClick={() => navigate(`/property/${property.propertyId}`)} //navigate on click
+      style={{
+        background: C.card,
+        border: `1px solid ${C.border}`,
+        borderRadius: "14px",
+        overflow: "hidden",
+        transition: "transform .2s, border-color .2s",
+        curser: "pointer", //hand cursor so tenant knows it's clickable
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.transform = "translateY(-3px)";
+        e.currentTarget.style.borderColor = C.accent;
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.transform = "translateY(0)";
+        e.currentTarget.style.borderColor = C.border;
+      }}
+    >
+      {/* colored top bar by property type */}
       <div
         style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          marginBottom: "12px",
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-          <span style={{ fontSize: "1.4rem" }}>
-            {property.type === "House"
-              ? "🏠"
+          height: "3px",
+          background:
+            property.type === "House"
+              ? `linear-gradient(90deg, ${C.accent}, ${C.accent2})`
               : property.type === "Apartment"
-                ? "🏢"
+                ? "linear-gradient(90deg, #7eb8e8, #a8d4f5)"
                 : property.type === "Villa"
-                  ? "🏡"
-                  : "🚪"}
-          </span>
-          <div>
-            <div
-              style={{
-                color: C.text,
-                fontWeight: "700",
-                fontFamily: "'Georgia', serif",
-              }}
-            >
-              {property.type}
-            </div>
-            <div style={{ color: C.muted, fontSize: "0.75rem" }}>
-              #{String(property.propertyId).padStart(4, "0")}
-            </div>
-          </div>
-        </div>
-        {/* AVAILABLE status badge */}
+                  ? "linear-gradient(90deg, #5ecb8a, #8de8b0)"
+                  : "linear-gradient(90deg, #e09b5c, #f0be8a)",
+        }}
+      />
+
+      <div style={{ padding: "20px" }}>
+        {/* type icon + title + status badge */}
         <div
           style={{
-            background: "#5ecb8a22",
-            border: "1px solid #5ecb8a55",
-            color: "#5ecb8a",
-            borderRadius: "20px",
-            padding: "3px 12px",
-            fontSize: "0.72rem",
-            fontWeight: "700",
-            textTransform: "uppercase",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            marginBottom: "12px",
           }}
         >
-          {property.status}
+          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+            <span style={{ fontSize: "1.4rem" }}>
+              {property.type === "House"
+                ? "🏠"
+                : property.type === "Apartment"
+                  ? "🏢"
+                  : property.type === "Villa"
+                    ? "🏡"
+                    : "🚪"}
+            </span>
+            <div>
+              <div
+                style={{
+                  color: C.text,
+                  fontWeight: "700",
+                  fontFamily: "'Georgia', serif",
+                }}
+              >
+                {property.type}
+              </div>
+              <div style={{ color: C.muted, fontSize: "0.75rem" }}>
+                #{String(property.propertyId).padStart(4, "0")}
+              </div>
+            </div>
+          </div>
+          {/* AVAILABLE status badge */}
+          <div
+            style={{
+              background: "#5ecb8a22",
+              border: "1px solid #5ecb8a55",
+              color: "#5ecb8a",
+              borderRadius: "20px",
+              padding: "3px 12px",
+              fontSize: "0.72rem",
+              fontWeight: "700",
+              textTransform: "uppercase",
+            }}
+          >
+            {property.status}
+          </div>
+        </div>
+
+        {/* address */}
+        <div style={{ display: "flex", gap: "8px", marginBottom: "10px" }}>
+          <span>📍</span>
+          <span
+            style={{ color: C.muted, fontSize: "0.85rem", lineHeight: "1.5" }}
+          >
+            {property.address}
+          </span>
+        </div>
+
+        {/* rent amount */}
+        <div style={{ display: "flex", gap: "8px" }}>
+          <span>💰</span>
+          <span
+            style={{
+              color: C.accent,
+              fontWeight: "700",
+              fontFamily: "'Georgia', serif",
+            }}
+          >
+            Rs. {property.rentAmount?.toLocaleString()}
+            <span
+              style={{ color: C.muted, fontSize: "0.78rem", fontWeight: "400" }}
+            >
+              {" "}
+              /month
+            </span>
+          </span>
+        </div>
+
+        {/* ── NEW — click hint at bottom of card ── */}
+        <div
+          style={{
+            marginTop: "12px",
+            paddingTop: "10px",
+            borderTop: `1px solid ${C.border}`,
+            color: C.accent,
+            fontSize: "0.75rem",
+            textAlign: "right",
+          }}
+        >
+          View details →
         </div>
       </div>
-
-      {/* address */}
-      <div style={{ display: "flex", gap: "8px", marginBottom: "10px" }}>
-        <span>📍</span>
-        <span
-          style={{ color: C.muted, fontSize: "0.85rem", lineHeight: "1.5" }}
-        >
-          {property.address}
-        </span>
-      </div>
-
-      {/* rent amount */}
-      <div style={{ display: "flex", gap: "8px" }}>
-        <span>💰</span>
-        <span
-          style={{
-            color: C.accent,
-            fontWeight: "700",
-            fontFamily: "'Georgia', serif",
-          }}
-        >
-          Rs. {property.rentAmount?.toLocaleString()}
-          <span
-            style={{ color: C.muted, fontSize: "0.78rem", fontWeight: "400" }}
-          >
-            {" "}
-            /month
-          </span>
-        </span>
-      </div>
     </div>
-  </div>
-);
+  );
+};
 
 // ── MAIN COMPONENT ───────────────────────────────────────────────
 const TenantProfile = () => {
@@ -481,21 +501,46 @@ const TenantProfile = () => {
             </span>
           </div>
 
-          {/* Edit Profile button */}
-          <button
+          {/* buttons group — Edit Profile + My Requests */}
+          <div
             style={{
-              ...T.btnOutline,
               marginLeft: "auto",
-              alignSelf: "flex-start",
               display: "flex",
-              alignItems: "center",
-              gap: "7px",
+              flexDirection: "column",
+              gap: "10px",
+              alignSelf: "flex-start",
               flexShrink: 0,
             }}
-            onClick={() => navigate(`/tenant/edit/${tenant.residentId}`)}
           >
-            <IconEdit /> Edit Profile
-          </button>
+            {/* Edit Profile button */}
+            <button
+              style={{
+                ...T.btnOutline,
+                display: "flex",
+                alignItems: "center",
+                gap: "7px",
+              }}
+              onClick={() => navigate(`/tenant/edit/${tenant.residentId}`)}
+            >
+              <IconEdit /> Edit Profile
+            </button>
+
+            {/* ── NEW — My Requests button ── */}
+            {/* Takes tenant to see status of all their sent requests */}
+            <button
+              style={{
+                ...T.btnOutline,
+                display: "flex",
+                alignItems: "center",
+                gap: "7px",
+                borderColor: "#7eb8e855", // soft blue to match tenant theme
+                color: "#7eb8e8",
+              }}
+              onClick={() => navigate(`/tenant/requests/${tenant.residentId}`)}
+            >
+              📋 My Requests
+            </button>
+          </div>
         </div>
 
         {/* ── PROPERTY SEARCH SECTION ───────────────────────────────

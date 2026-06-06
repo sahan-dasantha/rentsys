@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { C, T } from "../Styles/theme";
+import { Building2 } from "lucide-react"; // modern icon
 import { createOwner } from "../api/ownerApi";
 // 👆 This is your Axios API function that connects to Spring Boot
 
@@ -86,6 +87,57 @@ const OwnerSignup = () => {
 
   return (
     <div style={T.page}>
+      <nav style={T.topBar}>
+        {/* logo — clicking takes user back to home */}
+
+        <Link
+          to="/"
+          style={{
+            display: "flex", // ← ADDED: flex row
+            alignItems: "center", // ← ADDED: vertically center icon + text
+            gap: "10px", // ← ADDED: space between icon and text
+            fontSize: "1.6rem",
+            fontWeight: "700",
+            color: "#c9a96e",
+            letterSpacing: "0.15em",
+            textTransform: "uppercase",
+            textDecoration: "none",
+            fontFamily: "'Georgia', serif",
+            flexShrink: 0, //prevents logo from shrinking
+          }}
+        >
+          <div
+            style={{
+              background: "rgba(201,169,110,0.12)",
+              padding: "8px",
+              borderRadius: "12px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              border: "1px solid rgba(201,169,110,0.25)",
+            }}
+          >
+            <Building2 size={24} color="#c9a96e" strokeWidth={2.2} />
+          </div>
+          <span>RentSys</span>
+        </Link>
+
+        {/* back to home button */}
+        <button
+          onClick={() => navigate("/")}
+          style={{
+            ...T.btnOutline,
+            padding: "8px 16px",
+            fontSize: "0.85rem",
+            display: "flex",
+            alignItems: "center",
+            gap: "6px",
+          }}
+        >
+          ← Back to Home
+        </button>
+      </nav>
+
       <div
         style={{
           flex: 1,
