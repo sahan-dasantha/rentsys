@@ -18,10 +18,10 @@ import com.example.demo.model.RentalRequest;
 import com.example.demo.service.RentalRequestService;
 
 @RestController
-@RequestMapping("/rental-request") //all endpoints start with rental-request
-@CrossOrigin(origins = "http://localhost:5173")// allow your React frontend to call this
+@RequestMapping("/rental-request") // all endpoints start with rental-request
+@CrossOrigin(origins = "http://localhost:5173") // allow your React frontend to call this
 public class RentalRequestController {
-    
+
     @Autowired
     private RentalRequestService rentalRequestService;
 
@@ -29,7 +29,7 @@ public class RentalRequestController {
     // Tenant submits the agreement form
     // React sends: { residentId, propertyId, proposedStartDate, proposedEndD
     @PostMapping
-    public ResponseEntity<RentalRequest> createRequest(@RequestBody RentalRequest request){
+    public ResponseEntity<RentalRequest> createRequest(@RequestBody RentalRequest request) {
         RentalRequest saved = rentalRequestService.createRequest(request);
         return ResponseEntity.ok(saved);
     }
@@ -37,8 +37,8 @@ public class RentalRequestController {
     // ── GET /rental-request/property/{propertyId} ────────────────────
     // Owner fetches all requests for one of their properties
     @GetMapping("property/{propertyId}")
-    public ResponseEntity<List<RentalRequest>> getByProperty(@PathVariable Long propertyId){
-        return ResponseEntity.ok(rentalRequestService.getRequestsByTenant(propertyId));
+    public ResponseEntity<List<RentalRequest>> getByProperty(@PathVariable Long propertyId) {
+        return ResponseEntity.ok(rentalRequestService.getRequestByProperty(propertyId));
     }
 
     // ── PUT /rental-request/{requestId}/respond?decision=ACCEPTED ────
@@ -46,11 +46,19 @@ public class RentalRequestController {
     // decision comes as a query param: ?decision=ACCEPTED or ?decision=REJECTED
     @PutMapping("/{requestId}/respond")
     public ResponseEntity<RentalRequest> respond(
-        @PathVariable Long requestId,
-        @RequestParam String decision) {
+            @PathVariable Long requestId,
+            @RequestParam String decision) {
 
-            RentalRequest updated = rentalRequestService.respondToRequest(requestId, decision);
-            return ResponseEntity.ok(updated);
-        }
-    
+        RentalRequest updated = rentalRequestService.respondToRequest(requestId, decision);
+        return ResponseEntity.ok(updated);
+    }
+
+    // ── GET /rental-request/tenant/{residentId} ──────────────────────
+    // Tenant checks the status of all their own requests
+    // Called by TenantRequests.jsx when the page loads
+    @GetMapping("/tenant/{residentId}")
+    public ResponseEntity<List<RentalRequest>> getByTenant(@PathVariable Long residentId) {
+        return ResponseEntity.ok(rentalRequestService.getRequestsByTenant(residentId));
+    }
+
 }

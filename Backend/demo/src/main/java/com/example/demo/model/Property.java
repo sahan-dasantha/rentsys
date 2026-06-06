@@ -35,7 +35,7 @@ public class Property {
     private String type;        //house,apartment,villa
     
     @Column(name = "rent_amount")
-    private Double rentAmount;   //available,occupied
+    private Double rentAmount;   
 
     @Column(name = "status", length = 20)
     private String status;  //available,occupied
