@@ -81,7 +81,8 @@ const StatusBadge = ({ status }) => {
 
 // ── REQUEST CARD ─────────────────────────────────────────────────
 // Shows one rental request — property info, dates, status, owner response
-const RequestCard = ({ request }) => {
+// onCancel is the function passed from the parent to handle deletion
+const RequestCard = ({ request, onCancel }) => {
   // format "2024-01-15" → "Jan 15, 2024"
   const fmt = (d) =>
     d
@@ -296,35 +297,71 @@ const RequestCard = ({ request }) => {
       {/* Shows a different colored banner depending on what owner decided */}
 
       {request.status === "PENDING" && (
-        // Orange banner — still waiting
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "12px",
-            background: "#e09b5c11",
-            border: "1px solid #e09b5c33",
-            borderRadius: "10px",
-            padding: "14px 16px",
-          }}
-        >
-          <span style={{ fontSize: "1.4rem" }}>⏳</span>
-          <div>
-            <div
-              style={{
-                color: "#e09b5c",
-                fontWeight: "700",
-                fontSize: "0.88rem",
-              }}
-            >
-              Waiting for owner response
-            </div>
-            <div
-              style={{ color: C.muted, fontSize: "0.8rem", marginTop: "3px" }}
-            >
-              The owner has been notified and will respond to your request soon.
+        // Orange banner + cancel button — only shown for pending requests
+        <div>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "12px",
+              background: "#e09b5c11",
+              border: "1px solid #e09b5c33",
+              borderRadius: "10px",
+              padding: "14px 16px",
+            }}
+          >
+            <span style={{ fontSize: "1.4rem" }}>⏳</span>
+            <div>
+              <div
+                style={{
+                  color: "#e09b5c",
+                  fontWeight: "700",
+                  fontSize: "0.88rem",
+                }}
+              >
+                Waiting for owner response
+              </div>
+              <div
+                style={{ color: C.muted, fontSize: "0.8rem", marginTop: "3px" }}
+              >
+                The owner has been notified and will respond to your request
+                soon.
+              </div>
             </div>
           </div>
+
+          {/* ── CANCEL BUTTON ────────────────────────────────────────
+            Only visible on PENDING cards
+            Calls onCancel with this request's ID when clicked      */}
+          <button
+            onClick={() => onCancel(request.requestId)}
+            style={{
+              width: "100%",
+              padding: "10px",
+              borderRadius: "8px",
+              border: "1px solid #e05c5c55",
+              background: "#e05c5c11",
+              color: "#e05c5c",
+              fontWeight: "700",
+              fontSize: "0.88rem",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "8px",
+              transition: "background 0.2s",
+              marginTop: "18px",
+            }}
+            // darken on hover using inline onMouseEnter/Leave
+            onMouseEnter={(e) =>
+              (e.currentTarget.style.background = "#e05c5c22")
+            }
+            onMouseLeave={(e) =>
+              (e.currentTarget.style.background = "#e05c5c11")
+            }
+          >
+            🗑 Cancel Request
+          </button>
         </div>
       )}
 
@@ -412,6 +449,28 @@ const TenantRequests = () => {
 
   // get logged-in tenant from localStorage (saved during TenantLogin)
   const tenant = JSON.parse(localStorage.getItem("tenant") || "{}");
+
+  // ── CANCEL REQUEST ───────────────────────────────────────────────
+  // Called when tenant clicks "Cancel Request" on a PENDING card
+  // Sends DELETE to backend, then removes the card from the list instantly
+  const handleCancel = async (requestId) => {
+    // ask for confirmation first — prevent accidental deletion
+    const confirmed = window.confirm(
+      "Are you sure you want to cancel this rental request?",
+    );
+    if (!confirmed) return; //tenant changed their mind; do nothing
+
+    try {
+      // DELETE /rental-request/{requestId}
+      await axios.delete(`http://localhost:8081/rental-request/${requestId}`);
+
+      // remove the cancelled request from the list instantly
+      // no page reload needed — just filter it out of state
+      setRequests((prev) => prev.filter((r) => r.requestId !== requestId));
+    } catch (err) {
+      alert("Failed to cancel request. Please try again.");
+    }
+  };
 
   // ── LOGOUT ───────────────────────────────────────────────────────
   const handleLogout = () => {
@@ -777,6 +836,7 @@ const TenantRequests = () => {
               <RequestCard
                 key={request.requestId} // unique key required by React for lists
                 request={request}
+                onCancel={handleCancel} //pass cancel hand;er to card
               />
             ))
           )}

@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -59,6 +60,15 @@ public class RentalRequestController {
     @GetMapping("/tenant/{residentId}")
     public ResponseEntity<List<RentalRequest>> getByTenant(@PathVariable Long residentId) {
         return ResponseEntity.ok(rentalRequestService.getRequestsByTenant(residentId));
+    }
+
+    // ── DELETE /rental-request/{requestId} ───────────────────────────
+    // Tenant cancels their own PENDING request
+    // Only works on PENDING — service throws error for ACCEPTED/REJECTED
+    @DeleteMapping("/{requestId}")
+    public ResponseEntity<String> deleteRequest(@PathVariable Long requestId) {
+        rentalRequestService.deleteRequest(requestId);
+        return ResponseEntity.ok("Request cancelled successfully.");
     }
 
 }
