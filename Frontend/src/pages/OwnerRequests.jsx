@@ -34,6 +34,15 @@ const IconX = () => <Icon d="M18 6L6 18 M6 6l12 12" />;
 const IconInbox = () => (
   <Icon d="M22 12h-6l-2 3H10l-2-3H2 M5.45 5.11L2 12v6a2 2 0 002 2h16a2 2 0 002-2v-6l-3.45-6.89A2 2 0 0016.76 4H7.24a2 2 0 00-1.79 1.11z" />
 );
+// ── NEW ICONS — needed for tenant details panel ──────────────────
+const IconPhone = () => (
+  <Icon d="M22 16.92v3a2 2 0 01-2.18 2A19.79 19.79 0 013.09 5.18 2 2 0 015 3h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L9.09 10.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 17z" />
+);
+const IconMail = () => <Icon d="M4 4h16v16H4z M22 6l-10 7L2 6" />;
+const IconId = () => <Icon d="M2 5h20v14H2z M8 10h8 M8 14h4" />;
+const IconBriefcase = () => (
+  <Icon d="M20 7H4a2 2 0 00-2 2v10a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2" />
+);
 
 // ── STATUS BADGE ─────────────────────────────────────────────────
 // Shows PENDING / ACCEPTED / REJECTED with matching colors
@@ -70,9 +79,15 @@ const StatusBadge = ({ status }) => {
 };
 
 // ── REQUEST CARD ─────────────────────────────────────────────────
-// Displays one rental request with all its details + Accept/Reject buttons
-// onRespond is called when owner clicks a button → triggers API call in parent
-const RequestCard = ({ request, onRespond, responding }) => {
+// Displays one rental request with property info, dates,
+// collapsible tenant details, and Accept/Reject buttons
+// Props:
+//   request    → the request object with all fields + enriched tenant data
+//   onRespond  → called when owner clicks Accept or Reject
+//   responding → requestId currently being processed (shows loading state)
+//   isOpen     → true if this card's tenant panel is expanded
+//   onToggle   → called when owner clicks the toggle buttonent
+const RequestCard = ({ request, onRespond, responding, isOpen, onToggle }) => {
   // format date e.g. "2024-01-15" → "Jan 15, 2024"
   const fmt = (d) =>
     d
@@ -276,6 +291,207 @@ const RequestCard = ({ request, onRespond, responding }) => {
         </div>
       )}
 
+      {/* ── TENANT DETAILS TOGGLE BUTTON ────────────────────────── */}
+      {/* Clicking this expands or collapses the tenant info panel  */}
+      {/* The arrow rotates 180° when the panel is open             */}
+      <button
+        onClick={onToggle}
+        style={{
+          width: "100%",
+          padding: "10px",
+          borderRadius: "8px",
+          border: `1px solid ${C.accent}44`,
+          background: isOpen ? `${C.accent}15` : "transparent",
+          color: C.accent,
+          fontWeight: "600",
+          fontSize: "0.85rem",
+          cursor: "pointer",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: "8px",
+          marginBottom: "14px",
+          transition: "background 0.2s",
+        }}
+      >
+        {/* arrow rotates when panel opens */}
+        <span
+          style={{
+            display: "inline-block",
+            transition: "transform 0.25s",
+            transform: isOpen ? "rotate(180deg)" : "rotate(0deg)",
+          }}
+        >
+          ▼
+        </span>
+        {isOpen ? "Hide Tenant Details" : "View Tenant Details"}
+      </button>
+
+      {/* ── TENANT DETAILS PANEL ────────────────────────────────── */}
+      {/* Only renders when isOpen is true                          */}
+      {/* Shows all tenant info fetched from /tenant/{residentId}   */}
+      {isOpen && (
+        <div
+          style={{
+            background: "rgba(126,184,232,0.06)", // soft blue tint — tenant theme color
+            border: "1px solid rgba(126,184,232,0.2)",
+            borderRadius: "12px",
+            padding: "18px",
+            marginBottom: "18px",
+            animation: "fadeUp 0.25s ease both", // smooth slide-in animation
+          }}
+        >
+          {/* panel header */}
+          <div
+            style={{
+              fontSize: "0.7rem",
+              letterSpacing: "0.12em",
+              textTransform: "uppercase",
+              color: "#7eb8e8",
+              marginBottom: "16px",
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+              fontWeight: "700",
+            }}
+          >
+            <IconUser /> Tenant Information
+          </div>
+
+          {/* details grid — 2-3 columns depending on screen width */}
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))",
+              gap: "16px",
+            }}
+          >
+            {/* Full Name */}
+            <div>
+              <div
+                style={{
+                  fontSize: "0.72rem",
+                  color: C.muted,
+                  marginBottom: "4px",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "5px",
+                }}
+              >
+                <IconUser /> Full Name
+              </div>
+              <div
+                style={{
+                  color: C.text,
+                  fontSize: "0.92rem",
+                  fontWeight: "600",
+                }}
+              >
+                {request.tenantName || "—"}
+              </div>
+            </div>
+
+            {/* Phone Number */}
+            <div>
+              <div
+                style={{
+                  fontSize: "0.72rem",
+                  color: C.muted,
+                  marginBottom: "4px",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "5px",
+                }}
+              >
+                <IconPhone /> Phone
+              </div>
+              <div style={{ color: C.text, fontSize: "0.92rem" }}>
+                {request.tenantPhone || "—"}
+              </div>
+            </div>
+
+            {/* Email Address */}
+            <div>
+              <div
+                style={{
+                  fontSize: "0.72rem",
+                  color: C.muted,
+                  marginBottom: "4px",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "5px",
+                }}
+              >
+                <IconMail /> Email
+              </div>
+              <div style={{ color: C.text, fontSize: "0.92rem" }}>
+                {request.tenantEmail || "—"}
+              </div>
+            </div>
+
+            {/* National ID */}
+            <div>
+              <div
+                style={{
+                  fontSize: "0.72rem",
+                  color: C.muted,
+                  marginBottom: "4px",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "5px",
+                }}
+              >
+                <IconId /> National ID
+              </div>
+              <div style={{ color: C.text, fontSize: "0.92rem" }}>
+                {request.tenantNationalId || "—"}
+              </div>
+            </div>
+
+            {/* Occupation */}
+            <div>
+              <div
+                style={{
+                  fontSize: "0.72rem",
+                  color: C.muted,
+                  marginBottom: "4px",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "5px",
+                }}
+              >
+                <IconBriefcase /> Occupation
+              </div>
+              <div style={{ color: C.text, fontSize: "0.92rem" }}>
+                {request.tenantOccupation || "—"}
+              </div>
+            </div>
+
+            {/* Resident ID — shown in blue monospace to match tenant theme */}
+            <div>
+              <div
+                style={{
+                  fontSize: "0.72rem",
+                  color: C.muted,
+                  marginBottom: "4px",
+                }}
+              >
+                Resident ID
+              </div>
+              <div
+                style={{
+                  color: "#7eb8e8",
+                  fontFamily: "monospace",
+                  fontSize: "0.92rem",
+                }}
+              >
+                #{String(request.residentId).padStart(5, "0")}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* ── ACCEPT / REJECT BUTTONS ─────────────────────────────── */}
       {/* Only show buttons if request is still PENDING */}
       {/* Once owner responds, show a simple resolved message instead */}
@@ -365,6 +581,9 @@ const OwnerRequests = () => {
   const [responding, setResponding] = useState(null); // requestId currently being processed
   // "filter" controls which tab is shown — "ALL", "PENDING", "ACCEPTED", "REJECTED"
   const [filter, setFilter] = useState("ALL");
+  // tracks which card has its tenant panel open
+  // stores the requestId of the open card — null means all closed
+  const [openTenantId, setOpenTenantId] = useState(null);
 
   // get logged-in owner from localStorage (set during owner login)
   const owner = JSON.parse(localStorage.getItem("owner") || "{}");
@@ -381,7 +600,10 @@ const OwnerRequests = () => {
   //   1. Fetch all properties owned by this owner
   //   2. For each property, fetch its rental requests
   //   3. Attach property details (type, address) to each request
-  //   4. Flatten into one list sorted newest first
+  //   4. For each request, fetch tenant details in parallel
+  //   5. Attach tenant name, phone, email, nationalId, occupation
+  //   6. Flatten and sort newest first
+
   useEffect(() => {
     if (!owner?.ownerId) {
       navigate("/ownerlogin");
@@ -424,10 +646,38 @@ const OwnerRequests = () => {
           ),
         );
 
-        // Step 4 — flatten [[...], [...]] into one array, sort newest first
-        const allRequests = requestArrays
-          .flat()
-          .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        // flatten [[...], [...]] into one array
+        const flatRequests = requestArrays.flat();
+
+        // Step 4 — for each request, fetch tenant details in parallel
+        const enriched = await Promise.all(
+          flatRequests.map((req) =>
+            axios
+              .get(`http://localhost:8081/tenant/${req.residentId}`)
+              .then((res) => ({
+                ...req, // keep all existing fields
+                tenantName: res.data.fullName, // e.g. "Kalum Jayarathna"
+                tenantEmail: res.data.email, // e.g. "kalum@gmail.com"
+                tenantPhone: res.data.phoneNumber, // e.g. "0771234567"
+                tenantNationalId: res.data.nationalId, // e.g. "123456789V"
+                tenantOccupation: res.data.occupation, // e.g. "Engineer"
+              }))
+              .catch(() => ({
+                // if tenant fetch fails, still show the request with fallbacks
+                ...req,
+                tenantName: "Unknown Tenant",
+                tenantEmail: "—",
+                tenantPhone: "—",
+                tenantNationalId: "—",
+                tenantOccupation: "—",
+              })),
+          ),
+        );
+
+        // Step 5 — sort newest first by createdAt
+        const allRequests = enriched.sort(
+          (a, b) => new Date(b.createdAt) - new Date(a.createdAt),
+        );
 
         setRequests(allRequests);
         setLoading(false);
@@ -630,7 +880,7 @@ const OwnerRequests = () => {
           </p>
         </div>
 
-        {/* ── SUMMARY STATS ROW ─────────────────────────────────── */}
+        {/* ── SUMMARY STATS ─────────────────────────────────────── */}
         <div
           className="fade-up"
           style={{
@@ -640,80 +890,38 @@ const OwnerRequests = () => {
             marginBottom: "24px",
           }}
         >
-          {/* Pending count */}
-          <div style={{ ...T.card, textAlign: "center", padding: "18px" }}>
+          {[
+            { label: "Pending", count: countOf("PENDING"), color: "#e09b5c" },
+            { label: "Accepted", count: countOf("ACCEPTED"), color: "#5ecb8a" },
+            { label: "Rejected", count: countOf("REJECTED"), color: "#e05c5c" },
+          ].map((s) => (
             <div
-              style={{
-                fontSize: "1.8rem",
-                fontWeight: "700",
-                color: "#e09b5c",
-                fontFamily: "'Georgia', serif",
-              }}
+              key={s.label}
+              style={{ ...T.card, textAlign: "center", padding: "18px" }}
             >
-              {countOf("PENDING")}
+              <div
+                style={{
+                  fontSize: "1.8rem",
+                  fontWeight: "700",
+                  color: s.color,
+                  fontFamily: "'Georgia', serif",
+                }}
+              >
+                {s.count}
+              </div>
+              <div
+                style={{
+                  fontSize: "0.72rem",
+                  color: C.muted,
+                  textTransform: "uppercase",
+                  letterSpacing: "0.08em",
+                  marginTop: "4px",
+                }}
+              >
+                {s.label}
+              </div>
             </div>
-            <div
-              style={{
-                fontSize: "0.72rem",
-                color: C.muted,
-                textTransform: "uppercase",
-                letterSpacing: "0.08em",
-                marginTop: "4px",
-              }}
-            >
-              Pending
-            </div>
-          </div>
-
-          {/* Accepted count */}
-          <div style={{ ...T.card, textAlign: "center", padding: "18px" }}>
-            <div
-              style={{
-                fontSize: "1.8rem",
-                fontWeight: "700",
-                color: "#5ecb8a",
-                fontFamily: "'Georgia', serif",
-              }}
-            >
-              {countOf("ACCEPTED")}
-            </div>
-            <div
-              style={{
-                fontSize: "0.72rem",
-                color: C.muted,
-                textTransform: "uppercase",
-                letterSpacing: "0.08em",
-                marginTop: "4px",
-              }}
-            >
-              Accepted
-            </div>
-          </div>
-
-          {/* Rejected count */}
-          <div style={{ ...T.card, textAlign: "center", padding: "18px" }}>
-            <div
-              style={{
-                fontSize: "1.8rem",
-                fontWeight: "700",
-                color: "#e05c5c",
-                fontFamily: "'Georgia', serif",
-              }}
-            >
-              {countOf("REJECTED")}
-            </div>
-            <div
-              style={{
-                fontSize: "0.72rem",
-                color: C.muted,
-                textTransform: "uppercase",
-                letterSpacing: "0.08em",
-                marginTop: "4px",
-              }}
-            >
-              Rejected
-            </div>
-          </div>
+          ))}
         </div>
 
         {/* ── FILTER TABS ───────────────────────────────────────── */}
@@ -798,6 +1006,15 @@ const OwnerRequests = () => {
               request={request}
               onRespond={handleRespond} // pass handler down to card
               responding={responding} // pass which requestId is loading
+              // isOpen — true only for the card matching openTenantId
+              isOpen={openTenantId === request.requestId}
+              // onToggle — if already open close it, if closed open it
+              // this ensures only one panel is open at a time
+              onToggle={() =>
+                setOpenTenantId(
+                  openTenantId === request.requestId ? null : request.requestId,
+                )
+              }
             />
           ))
         )}
