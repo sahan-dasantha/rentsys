@@ -26,7 +26,11 @@ public class PropertyService {
         Optional<Owner> optOwner = ownerRepo.findById(ownerId);
         if (optOwner.isPresent()) {
             property.setOwner(optOwner.get()); // link to owner
-            property.setStatus("Available"); // default status
+            // Only set default status if owner didn't provide one
+            // This allows owner to set OCCUPIED when adding a property
+            if (property.getStatus() == null || property.getStatus().isBlank()) {
+                property.setStatus("Available"); // default only if nothing was sent
+            }
             return ResponseEntity.ok(propertyRepo.save(property));
         }
         throw new RuntimeException("Owner not found");

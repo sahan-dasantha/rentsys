@@ -8,8 +8,8 @@ const PROPERTY_TYPES = ["House", "Apartment", "Villa", "Room"];
 
 // ── Status badge colors ───────────────────────────────────────────
 const statusColor = {
-  AVAILABLE: "#5ecb8a",
-  OCCUPIED: "#e05c5c",
+  Available: "#5ecb8a",
+  "Not Available": "#e05c5c",
 };
 
 // ── Property Card Component ───────────────────────────────────────
@@ -175,7 +175,7 @@ const OwnerProperties = () => {
     address: "",
     type: "House",
     rentAmount: "",
-    status: "AVAILABLE",
+    status: "Available",
   });
 
   // ── load owner + properties on mount ──
@@ -233,7 +233,7 @@ const OwnerProperties = () => {
         address: "",
         type: "House",
         rentAmount: "",
-        status: "AVAILABLE",
+        status: "Available",
       });
       setShowForm(false);
       alert("Property added successfully!");
@@ -472,8 +472,8 @@ const OwnerProperties = () => {
                     value={form.status}
                     onChange={handleChange}
                   >
-                    <option value="AVAILABLE">Available</option>
-                    <option value="OCCUPIED">Occupied</option>
+                    <option value="Available">Available</option>
+                    <option value="Not Available">Not Available</option>
                   </select>
                 </div>
               </div>
