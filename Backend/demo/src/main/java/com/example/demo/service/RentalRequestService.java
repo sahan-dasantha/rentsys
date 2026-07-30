@@ -5,8 +5,10 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.example.demo.model.Agreement;
 import com.example.demo.model.Property;
 import com.example.demo.model.RentalRequest;
+import com.example.demo.repository.AgreementRepo;
 import com.example.demo.repository.PropertyRepo;
 import com.example.demo.repository.RentalRequestRepo;
 
@@ -17,6 +19,9 @@ public class RentalRequestService {
 
     @Autowired
     private PropertyRepo propertyRepo; // To update property status
+
+    @Autowired
+    private AgreementRepo agreementRepo;
 
     // ── CREATE ───────────────────────────────────────────────────────
     // Tenant submits agreement form → saves a new request with status PENDING
@@ -60,6 +65,17 @@ public class RentalRequestService {
 
             property.setStatus("Not Available"); // match the exact string which frontend expects
             propertyRepo.save(property);
+
+            // ── CREATE THE AGREEMENT ──────────────────────────────────
+            // This is the official rental contract — created automatically
+            // the moment the owner accepts the tenant's request
+            Agreement agreement = new Agreement();
+            agreement.setResidentId(request.getResidentId());
+            agreement.setPropertyId(request.getPropertyId());
+            agreement.setStartDate(request.getProposedStartDate());
+            agreement.setEndDate(request.getProposedEndDate());
+            agreement.setRentAmount(property.getRentAmount());
+            agreementRepo.save(agreement); // saves to DB
         }
 
         return request; // return updated request so frontend can react
