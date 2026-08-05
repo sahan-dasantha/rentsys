@@ -21,7 +21,7 @@ public class RentalRequestService {
     private PropertyRepo propertyRepo; // To update property status
 
     @Autowired
-    private AgreementRepo agreementRepo;
+    private AgreementRepo agreementRepo; // needed to create agreement on acceptance
 
     // ── CREATE ───────────────────────────────────────────────────────
     // Tenant submits agreement form → saves a new request with status PENDING
