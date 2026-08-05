@@ -540,6 +540,23 @@ const TenantProfile = () => {
             >
               📋 My Requests
             </button>
+
+            {/* ── NEW — Rented Properties button ──────────────────────────
+              Only meaningful after owner has accepted arequest
+              Takes tenant to see all properties they are currently renting*/}
+            <button
+              style={{
+                ...T.btnOutline,
+                display: "flex",
+                alignItems: "center",
+                gap: "7px",
+                borderColor: "#5ecb8a55",
+                color: "#5ecb8a", //green - active/rented theme
+              }}
+              onClick={() => navigate("/tenant/rented")}
+            >
+              🏠 Rented Properties
+            </button>
           </div>
         </div>
 

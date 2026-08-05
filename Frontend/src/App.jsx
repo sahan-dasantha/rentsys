@@ -10,6 +10,8 @@ import TenantProfile from "./pages/TenantProfile";
 import PropertyProfile from "./pages/PropertyProfile";
 import OwnerRequests from "./pages/OwnerRequests";
 import TenantRequests from "./pages/TenantRequests";
+import RentedProperties from "./pages/RentedProperties";
+import RentedPropertyDashboard from "./pages/RentedPropertyDashboard";
 
 function App() {
   return (
@@ -28,6 +30,11 @@ function App() {
         <Route
           path="/tenant/requests/:residentId"
           element={<TenantRequests />}
+        />
+        <Route path="tenant/rented" element={<RentedProperties />} />
+        <Route
+          path="tenant/rented/:propertyId"
+          element={<RentedPropertyDashboard />}
         />
       </Routes>
     </BrowserRouter>
