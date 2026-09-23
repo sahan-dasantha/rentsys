@@ -13,21 +13,40 @@ import com.example.demo.repository.OwnerRepo;
 import com.example.demo.repository.PropertyRepo;
 
 import lombok.RequiredArgsConstructor;
-
-@Service
-@RequiredArgsConstructor
+/**
+ * Service class handling core business logic for Property management.
+ * 
+ * Manages operations such as property creation linked to an owner, partial or full updates,
+ * filtered/unfiltered searches, deletion, and composite DTO construction to expose owner contact info.
+ */
+@Service // Registers this class as a managed Service component in Spring's Application Context
+@RequiredArgsConstructor // Lombok: Generates constructor injection for required private final fields
 
 public class PropertyService {
+    /**
+     * Repository dependency for executing CRUD operations on Property entities.
+     */
     private final PropertyRepo propertyRepo;
+    /**
+     * Repository dependency for fetching Owner records to link foreign keys.
+     */
     private final OwnerRepo ownerRepo;
 
-    // add new property
+    /**
+     * Registers a new rental property and associates it with a specific Owner.
+     * 
+     * Applies fallback default values (e.g., status "Available") if not specified by the user.
+     * 
+     * @param ownerId ID of the listing owner.
+     * @param property Entity containing new property details.
+     * @return ResponseEntity containing the persisted Property instance.
+     * @throws RuntimeException if no Owner exists for the given ownerId.
+     */
     public ResponseEntity<Property> addProperty(Long ownerId, Property property) {
         Optional<Owner> optOwner = ownerRepo.findById(ownerId);
         if (optOwner.isPresent()) {
-            property.setOwner(optOwner.get()); // link to owner
-            // Only set default status if owner didn't provide one
-            // This allows owner to set OCCUPIED when adding a property
+            property.setOwner(optOwner.get()); // Link entity relationship (populates owner_id foreign key)
+            // Assign default status "Available" only if the request payload leaves it blank/null
             if (property.getStatus() == null || property.getStatus().isBlank()) {
                 property.setStatus("Available"); // default only if nothing was sent
             }
@@ -36,12 +55,25 @@ public class PropertyService {
         throw new RuntimeException("Owner not found");
     }
 
-    // get all properties of an owner
+    /**
+     * Fetches all properties belonging to a specific Owner ID.
+     * 
+     * Leverages Spring Data JPA's nested field navigation query method (findByOwner_OwnerId).
+     * 
+     * @param ownerId Target owner primary key.
+     * @return ResponseEntity wrapping the list of matching Property records.
+     */
     public ResponseEntity<List<Property>> getPropertiesByOwner(Long ownerId) {
         return ResponseEntity.ok(propertyRepo.findByOwner_OwnerId(ownerId));
     }
 
-    // delete property
+    /**
+     * Removes a property listing from the system by ID.
+     * 
+     * @param propertyId Primary key of the property to delete.
+     * @return ResponseEntity with confirmation message string.
+     * @throws RuntimeException if the property does not exist.
+     */
     public ResponseEntity<String> deleteProperty(Long propertyId) {
         if (propertyRepo.existsById(propertyId)) {
             propertyRepo.deleteById(propertyId);
@@ -50,7 +82,17 @@ public class PropertyService {
         throw new RuntimeException("Property not found");
     }
 
-    // Update a property
+    /**
+     * Updates field values for an existing Property record.
+     * 
+     * Fetches existing record, mutates address, type, rent amount, and status properties,
+     * and saves changes back to the database.
+     * 
+     * @param propertyId ID of property to update.
+     * @param property Entity carrying updated attributes.
+     * @return ResponseEntity containing updated Property record.
+     * @throws RuntimeException if target property ID is not found.
+     */
     public ResponseEntity<Property> updateProperty(Long propertyId, Property property) {
         Optional<Property> opt = propertyRepo.findById(propertyId);
         if (opt.isPresent()) {
@@ -64,7 +106,12 @@ public class PropertyService {
         throw new RuntimeException("Property not found");
     }
 
-    // get ALL properties — used for tenant property search
+    /**
+     * Retrieves all registered properties in the database.
+     * Primary endpoint invoked by Tenants browsing property listings.
+     * 
+     * @return ResponseEntity containing complete list of Property entities.
+     */
     public ResponseEntity<List<Property>> getAllProperties() {
         return ResponseEntity.ok(propertyRepo.findAll());
     }
