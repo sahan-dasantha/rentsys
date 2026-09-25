@@ -6,9 +6,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.example.demo.model.Agreement;
+import com.example.demo.model.Payment;
 import com.example.demo.model.Property;
 import com.example.demo.model.RentalRequest;
 import com.example.demo.repository.AgreementRepo;
+import com.example.demo.repository.PaymentRepo;
 import com.example.demo.repository.PropertyRepo;
 import com.example.demo.repository.RentalRequestRepo;
 
@@ -22,6 +24,9 @@ public class RentalRequestService {
 
     @Autowired
     private AgreementRepo agreementRepo; // needed to create agreement on acceptance
+
+    @Autowired
+    private PaymentRepo paymentRepo; // needed to generate payments on agreement creation
 
     // ── CREATE ───────────────────────────────────────────────────────
     // Tenant submits agreement form → saves a new request with status PENDING
@@ -76,6 +81,36 @@ public class RentalRequestService {
             agreement.setEndDate(request.getProposedEndDate());
             agreement.setRentAmount(property.getRentAmount());
             agreementRepo.save(agreement); // saves to DB
+
+            // ── AUTO-GENERATE MONTHLY PAYMENTS ───────────────────────────
+            // Loop through each month from startDate to endDate
+            // Create one Payment record per month with status UNPAID
+            // YearMonth is a Java class that makes month arithmetic easy
+            java.time.YearMonth start = java.time.YearMonth.from(request.getProposedStartDate());
+            java.time.YearMonth end = java.time.YearMonth.from(request.getProposedEndDate());
+
+            // loop month by month from start to end (inclusive)
+            for (java.time.YearMonth month = start; !month.isAfter(end); month = month.plusMonths(1)) {
+
+                Payment payment = new Payment();
+                payment.setAgreementId(agreement.getAgreementId());
+                payment.setResidentId(request.getResidentId());
+                payment.setPropertyId(request.getPropertyId());
+
+                // format as "2024-01" — easy to display and sort
+                payment.setPaymentMonth(month.toString());
+
+                // due date is always the first of each month
+                payment.setDueDate(month.atDay(1));
+
+                // lock in the rent amount at the time of agreement
+                payment.setAmount(property.getRentAmount());
+
+                // paymentDate and receiptPath stay null until tenant pays
+                // status auto-set to "UNPAID" by @PrePersist
+
+                paymentRepo.save(payment);
+            }
         }
 
         return request; // return updated request so frontend can react
